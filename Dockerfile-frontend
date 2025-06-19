@@ -1,0 +1,38 @@
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV NVM_DIR=/root/.nvm \
+    NODE_VERSION=18.17.0
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y curl build-essential libssl-dev ca-certificates git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install NVM and Node.js
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
+    . "$NVM_DIR/nvm.sh" && \
+    nvm install $NODE_VERSION && \
+    nvm alias default $NODE_VERSION && \
+    nvm use default && \
+    npm install -g npm@9.6.7
+
+# Add NVM and Node to PATH for all future RUN, CMD, etc.
+ENV NODE_PATH=$NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules \
+    PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+# Create app directory
+WORKDIR /app
+
+# Copy app files
+COPY /frontend .
+
+# Install dependencies (use nvm's node)
+RUN corepack enable
+RUN npm install
+
+# Expose app port (if needed)
+EXPOSE 3000
+
+# Start app
+CMD ["yarn", "start"]
