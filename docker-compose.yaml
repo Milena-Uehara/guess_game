@@ -57,6 +57,20 @@ services:
     networks:
       - my_bridge_network
 
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    container_name: nginx
+    depends_on:
+      - frontend
+      - postgres
+    ports:
+      - "80:80"
+    restart: on-failure
+    networks:
+      - my_bridge_network
+
 volumes:
   postgres-data:
 
