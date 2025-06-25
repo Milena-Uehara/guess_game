@@ -25,6 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-backend
+    container_name: backend
     environment:
       FLASK_DB_TYPE: "postgres"
       FLASK_DB_USER: "postgres"
@@ -32,6 +33,8 @@ services:
       FLASK_DB_PASSWORD: "postgres"
       FLASK_DB_HOST: "postgres"
       FLASK_DB_PORT: "5432"
+    ports:
+      - "5000:5000"
     restart: on-failure
     depends_on:
       postgres:
