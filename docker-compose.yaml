@@ -19,7 +19,7 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     networks:
-      - my_bridge_network
+      - bridge_network
 
   backend:
     build:
@@ -40,39 +40,24 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - my_bridge_network
+      - bridge_network
 
   frontend:
     build:
-      context: .
+      context: frontend/
       dockerfile: Dockerfile-frontend
     container_name: frontend
-    environment:
-      REACT_APP_BACKEND_URL: "http://localhost:5000"
     depends_on:
       - backend
-    ports:
-      - "3000:3000"
-    restart: on-failure
-    networks:
-      - my_bridge_network
-
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile-nginx
-    container_name: nginx
-    depends_on:
-      - postgres
     ports:
       - "80:80"
     restart: on-failure
     networks:
-      - my_bridge_network
+      - bridge_network
 
 volumes:
   postgres-data:
 
 networks:
-  my_bridge_network:
+  bridge_network:
     driver: bridge
