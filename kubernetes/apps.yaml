@@ -1,0 +1,113 @@
+# BACKEND MANIFESTS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: app
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend-container
+        image: uehara96/guess-game:backend-v1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_DB_TYPE
+          value: "postgres"
+        - name: FLASK_DB_USER
+          value: "postgres"
+        - name: FLASK_DB_NAME
+          value: postgres
+        - name: FLASK_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: db-password
+        - name: FLASK_DB_HOST
+          value: "postgres-svc.database"
+        - name: FLASK_DB_PORT
+          value: "5432"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  namespace: app
+  labels:
+    app: backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+  selector:
+    app: backend
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+# FRONTEND MANIFESTS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: app
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend-container
+        image: uehara96/guess-game:frontend-v1.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: app
+  labels:
+    app: frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: frontend

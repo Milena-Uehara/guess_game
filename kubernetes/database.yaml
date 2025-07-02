@@ -1,0 +1,58 @@
+# POSTGRES MANIFESTS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+  namespace: database
+  labels:
+    app: postgres-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db
+  template:
+    metadata:
+      labels:
+        app: postgres-db
+    spec:
+      containers:
+      - name: postgres-db-container
+        image: postgres:15
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: db-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: db-password
+        - name: POSTGRES_DB
+          value: postgres
+        volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-volume-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc
+  namespace: database
+  labels:
+    app: postgres-db
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+  selector:
+    app: postgres-db
