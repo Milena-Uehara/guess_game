@@ -8,12 +8,12 @@
 
 
 ## Componentes k8s
-- Namespace
-- Deployment
-- PV (Persistent Volume)
-- PVC (Persistent Volume Claim)
-- Service
-- HPA (Horizontal Pod Autoscaler)
+- Namespace - para isolar recursos da aplicação e do banco de dados.
+- Deployment - para criar os pods da aplicação (frontend + backend) e do banco de dados.
+- PV (Persistent Volume) - provisiona um storage local.
+- PVC (Persistent Volume Claim) - solicitação do uso do storage pelo banco de dados.
+- Service - expõe a aplicação localmente.
+- HPA (Horizontal Pod Autoscaler) - configura uma regra para o backend escalar horizontalmente.
 
 ---
 # Rodando localmente
