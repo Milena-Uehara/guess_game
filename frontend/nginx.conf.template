@@ -1,5 +1,5 @@
 upstream backend_cluster {
-    server backend:5000;
+    server ${SERVER_ENDPOINT};
 }
 
 server {

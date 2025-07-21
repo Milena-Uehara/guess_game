@@ -1,7 +1,6 @@
 all: create wait
 
 create:
-	kubectl create -f kubernetes/namespace.yaml
 	kubectl create -f kubernetes/secrets.yaml
 	kubectl create -f kubernetes/volume.yaml
 	kubectl create -f kubernetes/database.yaml
@@ -9,6 +8,7 @@ create:
 wait:
 	@echo "Waiting for database..."
 	sleep 3
+	kubectl create -f kubernetes/metrics-server/components.yaml
 	kubectl create -f kubernetes/apps.yaml
 
 delete:		
@@ -16,4 +16,4 @@ delete:
 	kubectl delete -f kubernetes/database.yaml
 	kubectl delete -f kubernetes/volume.yaml
 	kubectl delete -f kubernetes/secrets.yaml
-	kubectl delete -f kubernetes/namespace.yaml
+	kubectl delete -f kubernetes/metrics-server/components.yaml

@@ -58,13 +58,12 @@ Isso irá fazer com que o build da imagem rode novamente pegando as novas atuali
 ---
 # GUESS_GAME no Kubernetes
 ## Componentes k8s
-- Namespace - para isolar recursos da aplicação e do banco de dados.
 - Deployment - para criar os pods da aplicação (frontend + backend) e do banco de dados.
 - PV (Persistent Volume) - provisiona um storage local.
 - PVC (Persistent Volume Claim) - solicitação do uso do storage pelo banco de dados.
 - Service - expõe a aplicação localmente.
 - HPA (Horizontal Pod Autoscaler) - configura uma regra para o backend escalar horizontalmente.
-
+- Metrics Server - coleta métricas de recursos do kubelet, com essa API de métricas conseguimos utilizar o HPA. Esse componente sobe no namespace kube-system.
 ---
 # Rodando localmente
 
@@ -80,9 +79,6 @@ make
 ``\
 ou crie cada componente separadamente:\
 ``
-kubectl create -f kubernetes/namespace.yaml
-``\
-``
 kubectl create -f kubernetes/secrets.yaml
 ``\
 ``
@@ -92,20 +88,20 @@ kubectl create -f kubernetes/volume.yaml
 kubectl create -f kubernetes/database.yaml
 ``\
 ``
+kubectl create -f kubernetes/metrics-server/components.yaml
+``\
+``
 kubectl create -f kubernetes/apps.yaml
 ``
 
 2. Verifique se todos os pods estão com status running:\
 ``
-kubectl get pods -n app
-``\
-``
-kubectl get pods -n database
+kubectl get pods
 ``
 
 3. Rode o comando para fazer o port-forward no service do frontend:\
 ``
-kubectl port-forward service/frontend-svc 8080:80 -n app
+kubectl port-forward service/frontend-svc 8080:80
 ``
 
 4. Acesse [**localhost:8080**](http://localhost:8080) pelo browser para acessar o jogo.
@@ -129,5 +125,5 @@ kubectl delete -f kubernetes/volume.yaml
 kubectl delete -f kubernetes/secrets.yaml
 ``\
 ``
-kubectl delete -f kubernetes/namespace.yaml
+kubectl create -f kubernetes/metrics-server/components.yaml
 ``
